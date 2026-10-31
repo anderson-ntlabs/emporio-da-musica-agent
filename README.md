@@ -22,7 +22,7 @@ Maritaca `sabia-4`).
 Requirements: Python 3.12+ and [uv](https://docs.astral.sh/uv/) (or plain `pip`).
 
 ```bash
-git clone <this repo> && cd emporio-da-musica-agent
+git clone https://github.com/anderson-ntlabs/emporio-da-musica-agent && cd emporio-da-musica-agent
 uv sync --extra dev            # or: python -m venv .venv && pip install -e ".[dev]"
 cp .env.example .env           # then set OPENAI_API_KEY (and the provider, see below)
 
