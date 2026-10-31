@@ -8,6 +8,7 @@ testable with a fake client, and swapping providers is an environment variable
 from __future__ import annotations
 
 import json
+import logging
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,6 +18,8 @@ from .policies import PolicyBook, default_policy_book
 from .prompt import build_system_prompt
 from .store import Store
 from .tools import TOOL_SCHEMAS, ToolContext, dispatch, now_in_store
+
+log = logging.getLogger(__name__)
 
 DEFAULT_MODEL = "gpt-4.1-mini"
 MAX_TOOL_ROUNDS = 6
@@ -97,6 +100,7 @@ class Agent:
             try:
                 message = self.client.complete([self.system_message(), *self.context_window()], TOOL_SCHEMAS)
             except Exception:  # provider/network error: degrade, do not crash the chat
+                log.exception("LLM call failed; answering with the fallback message")
                 self.history.append({"role": "assistant", "content": FALLBACK_REPLY})
                 return Turn(FALLBACK_REPLY, traces)
             self.history.append(message)

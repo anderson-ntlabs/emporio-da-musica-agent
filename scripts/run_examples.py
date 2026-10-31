@@ -9,13 +9,14 @@ answers about opening hours are reproducible.
 from __future__ import annotations
 
 import json
+import logging
 import sys
 import tempfile
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-from emporio_agent.agent import Agent, OpenAIChatClient
+from emporio_agent.agent import FALLBACK_REPLY, Agent, OpenAIChatClient
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "examples"
@@ -100,7 +101,8 @@ def render(scenario: dict, turns: list[tuple[str, object]], model: str) -> str:
 
 
 def main() -> None:
-    load_dotenv(ROOT / ".env")
+    logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
+    load_dotenv(ROOT / ".env", override=True)
     only = {int(a) for a in sys.argv[1:]}
     OUT.mkdir(exist_ok=True)
     client = OpenAIChatClient()
@@ -110,6 +112,8 @@ def main() -> None:
         with tempfile.TemporaryDirectory() as tmp:
             agent = Agent(client, clock_override=scenario["now"], complaints_path=Path(tmp) / "c.jsonl")
             turns = [(msg, agent.send(msg)) for msg in scenario["messages"]]
+        if any(turn.reply == FALLBACK_REPLY for _, turn in turns):
+            sys.exit(f"scenario {i}: the model call failed (see the log above); transcript not written")
         path = OUT / f"{scenario['slug']}.md"
         path.write_text(render(scenario, turns, client.model), encoding="utf-8")
         print(f"wrote {path.relative_to(ROOT)}")

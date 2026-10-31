@@ -14,7 +14,7 @@ SESSIONS_DIR = Path(".sessions")
 
 
 def main() -> None:
-    load_dotenv()
+    load_dotenv(override=True)  # the project .env wins over stale shell variables
     parser = argparse.ArgumentParser(description="Atendimento da Empório da Música (protótipo)")
     parser.add_argument("--session", help="nome da sessão para salvar e retomar o histórico")
     parser.add_argument("--debug", action="store_true", help="mostra as ferramentas chamadas a cada resposta")
