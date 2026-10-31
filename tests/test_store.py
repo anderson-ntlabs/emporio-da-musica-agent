@@ -133,5 +133,5 @@ def test_alternatives_prefer_same_string_type(store):
 def test_overdue_shipment_flagged(store):
     from datetime import date
     result = store.order_status(8, email="anacarol.ferreira@coldmail.com", today=date(2026, 11, 4))
-    assert result["entrega_atrasada"] is True
-    assert result["dias_de_atraso"] == 249
+    assert "AINDA NÃO ENTREGUE" in result["atraso"]["situacao"]
+    assert result["atraso"]["dias_desde_a_previsao"] == 249

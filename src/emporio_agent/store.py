@@ -395,8 +395,10 @@ class Store:
         if order.estimated_delivery:
             result["previsao_entrega"] = order.estimated_delivery
             if order.status == "shipped" and today and date.fromisoformat(order.estimated_delivery) < today:
-                result["entrega_atrasada"] = True
-                result["dias_de_atraso"] = (today - date.fromisoformat(order.estimated_delivery)).days
+                result["atraso"] = {
+                    "situacao": "enviado e AINDA NÃO ENTREGUE, previsão de entrega já vencida",
+                    "dias_desde_a_previsao": (today - date.fromisoformat(order.estimated_delivery)).days,
+                }
         if order.notes:
             result["observacao"] = order.notes
         return result
