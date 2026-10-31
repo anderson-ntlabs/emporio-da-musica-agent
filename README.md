@@ -11,11 +11,11 @@ Portuguese, the language of the store's customers, so the conversations, the too
 Portuguese.
 
 ```
-Cliente: Quanto custa o Takamine GD20? Vi que ele tava com desconto
-  [tool] get_product({"name": "Takamine GD20"})
-Lia:     O Takamine GD20 Dreadnought Natural está R$ 2.199,00. No PIX, sai por R$ 2.089,05
-         (5% de desconto). A promoção que você viu ("Oferta Especial") já encerrou, então o
-         preço atual é esse mesmo.
+Customer: Quanto custa o Takamine GD20? Vi que ele tava com desconto
+   [tool] get_product({"name": "Takamine GD20"})
+Lia:      O Takamine GD20 Dreadnought Natural está R$ 2.199,00. No PIX, sai por R$ 2.089,05
+          (5% de desconto). A promoção que você viu ("Oferta Especial") já encerrou, então o
+          preço atual é esse mesmo.
 ```
 
 Five full transcripts, with every tool call and its result, are in [`examples/`](examples/) (generated with
