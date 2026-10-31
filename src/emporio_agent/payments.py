@@ -9,6 +9,8 @@ tier is read as "each installment must be at least R$ 50,00".
 
 from __future__ import annotations
 
+from .store import money
+
 PIX_DISCOUNT = 0.05
 COMBINATION_THRESHOLD = 2000.00
 
@@ -33,14 +35,14 @@ def max_installments(amount: float) -> int:
 
 
 def simulate(amount: float, promotional: bool = False) -> dict:
-    amount = round(amount, 2)
+    amount = money(amount)
     n_max = max_installments(amount)
     options = []
     for n in (1, 2, 3, 6, 10, 12):
         if n <= n_max:
-            options.append({"parcelas": n, "valor_parcela": round(amount / n, 2)})
+            options.append({"parcelas": n, "valor_parcela": money(amount / n)})
     if n_max not in (o["parcelas"] for o in options):
-        options.append({"parcelas": n_max, "valor_parcela": round(amount / n_max, 2)})
+        options.append({"parcelas": n_max, "valor_parcela": money(amount / n_max)})
     result: dict = {
         "valor": amount,
         "cartao_credito": {
@@ -54,5 +56,5 @@ def simulate(amount: float, promotional: bool = False) -> dict:
         result["pix"] = {"valor": amount,
                          "observacao": "sem desconto extra: o desconto de PIX não acumula com promoção"}
     else:
-        result["pix"] = {"valor": round(amount * (1 - PIX_DISCOUNT), 2), "desconto": "5%"}
+        result["pix"] = {"valor": money(amount * (1 - PIX_DISCOUNT)), "desconto": "5%"}
     return result

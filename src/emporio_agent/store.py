@@ -11,6 +11,8 @@ import csv
 import json
 import unicodedata
 from dataclasses import dataclass, field
+from datetime import date
+from decimal import ROUND_HALF_UP, Decimal
 from difflib import SequenceMatcher
 from pathlib import Path
 
@@ -44,6 +46,11 @@ def normalize(text: str) -> str:
     text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
     cleaned = "".join(ch if ch.isalnum() else " " for ch in text.lower())
     return " ".join(cleaned.split())
+
+
+def money(value: float) -> float:
+    """Round like a cash register (half up), not like float round() (408.405 -> 408.41)."""
+    return float(Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
 def digits(text: str) -> str:
@@ -198,16 +205,16 @@ class Store:
         """Price view following policy 6.2: promo price shown with the original and
         the percentage; the 5% PIX discount applies only when there is no promotion."""
         promo = self.active_promotion(product.id)
-        info: dict = {"preco_tabela": round(product.price, 2)}
+        info: dict = {"preco_tabela": money(product.price)}
         if promo:
             info["promocao_ativa"] = {
                 "nome": promo.description,
                 "desconto_percentual": promo.percent,
-                "preco_promocional": round(product.price * (1 - promo.percent / 100), 2),
+                "preco_promocional": money(product.price * (1 - promo.percent / 100)),
             }
             info["pix"] = "desconto de 5% no PIX NÃO se aplica sobre preço promocional"
         else:
-            info["preco_no_pix"] = round(product.price * (1 - PIX_DISCOUNT), 2)
+            info["preco_no_pix"] = money(product.price * (1 - PIX_DISCOUNT))
         expired = self.expired_promotions(product.id)
         if expired:
             info["promocoes_encerradas"] = sorted({p.description for p in expired})
@@ -321,7 +328,9 @@ class Store:
         """Sellable products in the same category, closest in price."""
         pool = [p for p in self.products.values()
                 if p.category_id == product.category_id and p.sellable and p.id != product.id]
-        pool.sort(key=lambda p: abs(p.price - product.price))
+        strings = product.specs.get("strings")
+        # same string type first (a steel-string player does not want nylon), then closest price
+        pool.sort(key=lambda p: (p.specs.get("strings") != strings, abs(p.price - product.price)))
         return [self.product_view(p) for p in pool[:limit]]
 
     def product_details(self, name: str) -> dict:
@@ -340,7 +349,8 @@ class Store:
 
     # ------------------------------------------------------------------- orders
 
-    def order_status(self, order_id: int, email: str | None = None, phone: str | None = None) -> dict:
+    def order_status(self, order_id: int, email: str | None = None, phone: str | None = None,
+                     today: date | None = None) -> dict:
         """Order lookup with identity check (policy section 9, LGPD).
 
         The order is only disclosed when the e-mail or the phone matches the
@@ -384,6 +394,9 @@ class Store:
             result["codigo_rastreamento"] = order.tracking_code
         if order.estimated_delivery:
             result["previsao_entrega"] = order.estimated_delivery
+            if order.status == "shipped" and today and date.fromisoformat(order.estimated_delivery) < today:
+                result["entrega_atrasada"] = True
+                result["dias_de_atraso"] = (today - date.fromisoformat(order.estimated_delivery)).days
         if order.notes:
             result["observacao"] = order.notes
         return result

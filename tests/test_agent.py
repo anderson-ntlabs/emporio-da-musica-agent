@@ -120,3 +120,11 @@ def test_simulate_payment_uses_promotional_price():
     result = dispatch(ctx, "simulate_payment", {"product_name": "Ohana CK-20"})
     assert result["valor"] == pytest.approx(439.2)
     assert "sem desconto extra" in result["pix"]["observacao"]
+
+
+def test_prompt_pins_store_contacts(agent):
+    a = agent([{"role": "assistant", "content": "Oi!"}])
+    a.send("oi")
+    system = a.client.seen[0][0]["content"]
+    assert "(67) 3341-4444" in system
+    assert "3321-4500" not in system

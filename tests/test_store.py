@@ -116,3 +116,22 @@ def test_simulate_pix_and_combination():
     assert sim["combinar_formas"] is True
     promo = payments.simulate(1967.18, promotional=True)
     assert promo["pix"]["valor"] == pytest.approx(1967.18)
+
+
+def test_money_rounds_half_up():
+    from emporio_agent.store import money
+    assert money(429.9 * 0.95) == 408.41
+    assert money(2.675) == 2.68
+
+
+def test_alternatives_prefer_same_string_type(store):
+    product = store.product_details("Giannini GF-3D")["produto"]
+    strings = {store.products[a["id"]].specs.get("strings") for a in product["alternativas_semelhantes"]}
+    assert strings == {"steel"}
+
+
+def test_overdue_shipment_flagged(store):
+    from datetime import date
+    result = store.order_status(8, email="anacarol.ferreira@coldmail.com", today=date(2026, 11, 4))
+    assert result["entrega_atrasada"] is True
+    assert result["dias_de_atraso"] == 249

@@ -32,7 +32,7 @@ The agent talks to any **OpenAI-compatible Chat Completions endpoint with tool c
 | Provider | `OPENAI_BASE_URL` | `LLM_MODEL` (example) | Notes |
 |---|---|---|---|
 | OpenAI (default) | *(unset)* | `gpt-4.1-mini` | cheap, reliable tool calling |
-| Maritaca AI | `https://chat.maritaca.ai/api` | `sabia-3.1` | models trained for Brazilian Portuguese |
+| Maritaca AI | `https://chat.maritaca.ai/api` | `sabia-4` | models trained for Brazilian Portuguese |
 | Ollama (local, free) | `http://localhost:11434/v1` | `qwen2.5:7b-instruct` | needs a model with tool support |
 
 `EMPORIO_NOW=2026-11-03T10:30:00` freezes the store clock (useful to test opening-hours answers).

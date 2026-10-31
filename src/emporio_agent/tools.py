@@ -243,7 +243,7 @@ def dispatch(ctx: ToolContext, name: str, arguments: dict) -> dict:
                 return ctx.policies.read(str(arguments["section"]))
             case "check_order":
                 return ctx.store.order_status(int(arguments["order_id"]), arguments.get("email"),
-                                              arguments.get("phone"))
+                                              arguments.get("phone"), today=now_in_store(ctx.clock_override).date())
             case "store_hours_now":
                 return store_hours(now_in_store(ctx.clock_override))
             case "register_complaint":
