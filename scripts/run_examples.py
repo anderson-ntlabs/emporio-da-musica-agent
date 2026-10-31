@@ -24,8 +24,8 @@ OUT = ROOT / "examples"
 SCENARIOS = [
     {
         "slug": "01-catalogo-violoes-ate-1000",
-        "title": "Catálogo: violões até R$ 1.000",
-        "goal": "Busca com filtro de categoria e preço, refinamento na mesma conversa, item sem estoque omitido.",
+        "title": "Catalog: acoustic guitars (violões) up to R$ 1,000",
+        "goal": "Search filtered by category and price, refined in the same conversation; the out-of-stock item is left out.",
         "now": "2026-11-03T10:15:00",
         "messages": [
             "Oi! Quais opções de violões vocês têm custando até R$1000?",
@@ -34,8 +34,8 @@ SCENARIOS = [
     },
     {
         "slug": "02-preco-promocao-encerrada-e-pagamento",
-        "title": "Preço, promoção encerrada e formas de pagamento",
-        "goal": "Consulta de preço, transparência sobre promoção que acabou (7.3), PIX e parcelas pela política 3.1.",
+        "title": "Price, an expired promotion and payment options",
+        "goal": "Price lookup, transparency about a promotion that ended (7.3), PIX and installments under policy 3.1.",
         "now": "2026-11-03T15:40:00",
         "messages": [
             "Quanto custa o Takamine GD20? Vi que ele tava com desconto",
@@ -44,9 +44,9 @@ SCENARIOS = [
     },
     {
         "slug": "03-arrependimento-com-pedido-verificado",
-        "title": "Arrependimento de compra com pedido verificado",
-        "goal": "Política de devolução (4.1) aplicada a um pedido real, com verificação de identidade antes de "
-                "mostrar dados e registro para a equipe.",
+        "title": "Return request with a verified order",
+        "goal": "Return policy (4.1) applied to a real order, with an identity check before any order data is "
+                "shown, and a case registered for the team.",
         "now": "2026-11-04T11:00:00",
         "messages": [
             "Me arrependi da minha compra, posso devolver meu pedido?",
@@ -57,9 +57,9 @@ SCENARIOS = [
     },
     {
         "slug": "04-fora-do-escopo-endereco-e-horario",
-        "title": "Fora do escopo, endereço e horário fora do expediente",
-        "goal": "Acessório redirecionado (7.1), informação geral da loja e aviso de quando a equipe volta, "
-                "num sábado à tarde antes do feriado de Finados.",
+        "title": "Out of scope, store address and out-of-hours contact",
+        "goal": "Accessories redirected (7.1), general store information and when the team is back, "
+                "on a Saturday afternoon before the Finados holiday.",
         "now": "2026-10-31T16:20:00",
         "messages": [
             "Boa tarde, vocês vendem encordoamento e pedal de guitarra?",
@@ -68,9 +68,9 @@ SCENARIOS = [
     },
     {
         "slug": "05-situacoes-dificeis",
-        "title": "Situações difíceis: sem estoque, pedido de outra pessoa e tentativa de manipulação",
-        "goal": "Produto esgotado com alternativas (7.3), recusa de dados de terceiros (9), resistência a "
-                "instruções do usuário e a assunto fora da loja.",
+        "title": "Hard cases: out of stock, someone else's order and a manipulation attempt",
+        "goal": "Out-of-stock product with alternatives (7.3), third-party data refused (9), resistance to user "
+                "instructions and to an off-topic question.",
         "now": "2026-11-05T09:30:00",
         "messages": [
             "Quero o Giannini GF-3D sunburst, ainda tem?",
@@ -83,12 +83,12 @@ SCENARIOS = [
 
 
 def render(scenario: dict, turns: list[tuple[str, object]], model: str) -> str:
-    lines = [f"# {scenario['title']}", "", f"**Objetivo do cenário:** {scenario['goal']}", "",
-             f"*Relógio da loja congelado em {scenario['now']} (America/Campo_Grande) · modelo `{model}`*", ""]
+    lines = [f"# {scenario['title']}", "", f"**Scenario goal:** {scenario['goal']}", "",
+             f"*Store clock frozen at {scenario['now']} (America/Campo_Grande) · model `{model}` · conversation in Brazilian Portuguese, as the store's customers write*", ""]
     for user, turn in turns:
-        lines += [f"**Cliente:** {user}", ""]
+        lines += [f"**Customer:** {user}", ""]
         if turn.tools:
-            lines.append("<details><summary>Ferramentas chamadas</summary>")
+            lines.append("<details><summary>Tool calls</summary>")
             lines.append("")
             for t in turn.tools:
                 result = json.dumps(t.result, ensure_ascii=False)

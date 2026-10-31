@@ -1,12 +1,12 @@
-# Catálogo: violões até R$ 1.000
+# Catalog: acoustic guitars (violões) up to R$ 1,000
 
-**Objetivo do cenário:** Busca com filtro de categoria e preço, refinamento na mesma conversa, item sem estoque omitido.
+**Scenario goal:** Search filtered by category and price, refined in the same conversation; the out-of-stock item is left out.
 
-*Relógio da loja congelado em 2026-11-03T10:15:00 (America/Campo_Grande) · modelo `sabia-4`*
+*Store clock frozen at 2026-11-03T10:15:00 (America/Campo_Grande) · model `sabia-4` · conversation in Brazilian Portuguese, as the store's customers write*
 
-**Cliente:** Oi! Quais opções de violões vocês têm custando até R$1000?
+**Customer:** Oi! Quais opções de violões vocês têm custando até R$1000?
 
-<details><summary>Ferramentas chamadas</summary>
+<details><summary>Tool calls</summary>
 
 - `search_products({"category": "violões", "max_price": 1000})`
   → `{"total_encontrado": 12, "resultados": [{"id": 83, "nome": "Tagima Memphis AC-39 Nylon Natural", "categoria": "Violões", "situacao": "disponível no catálogo", "em_estoque": 15, "disponivel_para_venda": true, "preco_tabela": 429.9, "preco_no_pix": 408.41}, {"id": 85, "nome": "Rozini RC-104 Nylon Estudante", "categoria": "Violões", "situacao": "disponível no catálogo", "em_estoque": 10, "disponivel_para_venda": true, "preco_tabela": 459.9, "preco_no_pix": 436.91}, {"id": 89, "nome": "Shelby SN-100 Folk Aço Preto", "categoria": "Violões", "situacao": "disponível no catálogo", "em_estoque": 5, "di …`
@@ -28,7 +28,7 @@
 
 Quer saber mais detalhes de algum modelo ou quer que eu filtre por cordas de aço/nylon, tamanho ou marca?
 
-**Cliente:** Legal. E desses, tem algum de cordas de aço? É pra tocar folk
+**Customer:** Legal. E desses, tem algum de cordas de aço? É pra tocar folk
 
 **Lia:** Ótima escolha! Para tocar folk, o ideal mesmo é corda de aço. Entre as opções que te passei, estes são de cordas de aço:
 

@@ -1,12 +1,12 @@
-# Arrependimento de compra com pedido verificado
+# Return request with a verified order
 
-**Objetivo do cenário:** Política de devolução (4.1) aplicada a um pedido real, com verificação de identidade antes de mostrar dados e registro para a equipe.
+**Scenario goal:** Return policy (4.1) applied to a real order, with an identity check before any order data is shown, and a case registered for the team.
 
-*Relógio da loja congelado em 2026-11-04T11:00:00 (America/Campo_Grande) · modelo `sabia-4`*
+*Store clock frozen at 2026-11-04T11:00:00 (America/Campo_Grande) · model `sabia-4` · conversation in Brazilian Portuguese, as the store's customers write*
 
-**Cliente:** Me arrependi da minha compra, posso devolver meu pedido?
+**Customer:** Me arrependi da minha compra, posso devolver meu pedido?
 
-<details><summary>Ferramentas chamadas</summary>
+<details><summary>Tool calls</summary>
 
 - `read_policy({"section": "4"})`
   → `{"secao": "4", "conteudo": "4. Política de Trocas e Devoluções\nA Empório da Música segue as diretrizes do Código de Defesa do Consumidor (Lei nº 8.078/90) e\noferece condições claras para trocas e devoluções.\n\n4.1 Direito de Arrependimento (Compras Online)\n• O cliente pode solicitar a devolução em até 7 (sete) dias corridos após o recebimento do\nproduto, sem necessidade de justificativa.\n• O produto deve estar em sua embalagem original, sem sinais de uso, com todos os\nacessórios e manuais.\n• O reembolso será realizado na mesma forma de pagamento original em até 10 dias úteis.\n• O fret …`
@@ -22,9 +22,9 @@ As regras principais são:
 
 Se quiser seguir com a devolução, me informe o número do pedido e o e-mail ou telefone usado na compra para eu consultar o status e te orientar no próximo passo.
 
-**Cliente:** É o pedido 8, meu e-mail é anacarol.ferreira@coldmail.com
+**Customer:** É o pedido 8, meu e-mail é anacarol.ferreira@coldmail.com
 
-<details><summary>Ferramentas chamadas</summary>
+<details><summary>Tool calls</summary>
 
 - `check_order({"order_id": 8, "email": "anacarol.ferreira@coldmail.com"})`
   → `{"autorizado": true, "pedido": 8, "cliente_primeiro_nome": "Ana", "data_do_pedido": "2026-02-15", "status": "enviado", "pagamento": "cartão de débito", "total_pago": 349.9, "itens": [{"produto": "Kala KA-C Concert Mogno", "quantidade": 1}], "codigo_rastreamento": "BRJL5544332BR", "previsao_entrega": "2026-02-28", "atraso": {"situacao": "enviado e AINDA NÃO ENTREGUE, previsão de entrega já vencida", "dias_desde_a_previsao": 249}}`
@@ -37,9 +37,9 @@ Como a entrega está atrasada, isso é tratado como um problema de logística, n
 
 Vou abrir uma reclamação e te passar um protocolo. Você prefere que eu use seu e-mail (anacarol.ferreira@coldmail.com) para o retorno?
 
-**Cliente:** Ainda não chegou não. Quero devolver assim que chegar, pode registrar? Sou a Ana Carolina, telefone (67) 99654-7821
+**Customer:** Ainda não chegou não. Quero devolver assim que chegar, pode registrar? Sou a Ana Carolina, telefone (67) 99654-7821
 
-<details><summary>Ferramentas chamadas</summary>
+<details><summary>Tool calls</summary>
 
 - `register_complaint({"summary": "Pedido 8 (Kala KA-C Concert Mogno) ainda não foi entregue; cliente solicita devolução por arrependimento assim que o produto chegar.", "customer_name": "Ana Carolina", "contact": "(67) 99654-7821", "order_id": 8})`
   → `{"protocolo": "EM-20261104-AC02A7", "prazo_retorno": "até 24 horas úteis (política 7.3)"}`

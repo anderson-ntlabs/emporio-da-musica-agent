@@ -6,6 +6,10 @@ applies the store's policy manual, so the human team only gets the cases that ne
 
 Built for the Artefact AI Engineer technical case.
 
+**Language:** code and documentation are in English. The agent itself talks to customers in Brazilian
+Portuguese, the language of the store's customers, so the conversations, the tool payloads and the prompt are in
+Portuguese.
+
 ```
 Cliente: Quanto custa o Takamine GD20? Vi que ele tava com desconto
   [tool] get_product({"name": "Takamine GD20"})
@@ -203,7 +207,7 @@ Code sessions. How the work was split:
 - **Review where it matters: the real transcripts.** The four defects in "What the first real runs showed" were
   caught by reading actual conversations with the model, not by the unit tests. That review loop, more than the
   typing, is where I think the engineering is.
-- The transcripts in `examples/` are unedited outputs of `scripts/run_examples.py`.
+- The conversations in `examples/` are unedited model output from `scripts/run_examples.py`.
 
 ## Project layout
 
