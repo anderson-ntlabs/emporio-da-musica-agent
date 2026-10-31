@@ -6,7 +6,16 @@ applies the store's policy manual, so the human team only gets the cases that ne
 
 Built for the Artefact AI Engineer technical case.
 
-Full transcripts: [`examples/`](examples/).
+```
+Cliente: Quanto custa o Takamine GD20? Vi que ele tava com desconto
+  [tool] get_product({"name": "Takamine GD20"})
+Lia:     O Takamine GD20 Dreadnought Natural está R$ 2.199,00. No PIX, sai por R$ 2.089,05
+         (5% de desconto). A promoção que você viu ("Oferta Especial") já encerrou, então o
+         preço atual é esse mesmo.
+```
+
+Five full transcripts, with every tool call and its result, are in [`examples/`](examples/) (generated with
+Maritaca `sabia-4`).
 
 ## Quick start
 
@@ -21,7 +30,7 @@ uv run emporio                 # chat in the terminal
 uv run emporio --debug         # same, printing every tool call
 uv run emporio --session ana   # keeps the conversation in .sessions/ana.json and resumes it
 
-uv run pytest                  # 40 tests, no API key needed
+uv run pytest                  # 44 tests, no API key needed
 uv run python scripts/run_examples.py   # regenerates examples/ against the real model
 ```
 
@@ -82,10 +91,13 @@ document's own structure already solves, and chunking can split a rule in half (
 four bullets). Past a few dozen documents I would switch to hybrid search (BM25 + embeddings) over the same
 section boundaries.
 
-**Model and provider.** Default `gpt-4.1-mini`: inexpensive, good Portuguese, dependable parallel tool calls.
-The client is the OpenAI SDK pointed at any compatible endpoint, so Maritaca (Brazilian Portuguese models) or a
-local Ollama model are a `.env` change, not a code change. Temperature 0.3: consistent wording without sounding
-canned.
+**Model and provider.** The client is the OpenAI SDK pointed at any compatible endpoint, so the provider is a
+`.env` change, not a code change. The transcripts in `examples/` were generated with **Maritaca `sabia-4`**, a model
+trained for Brazilian Portuguese: the customers write like Brazilians on WhatsApp ("tava", "kkk", "pra"), and the
+store's own manual asks for an informal, friendly tone, which is where a Portuguese-native model shows. (I maintain
+the `langchain-maritaca` integration, so I also know its tool-calling behaviour well.) The default in
+`.env.example` is OpenAI `gpt-4.1-mini`, because it is the key a reviewer is most likely to have. Temperature 0.3:
+consistent wording without sounding canned.
 
 **Prompt strategy.** One system prompt (`prompt.py`): persona and tone from §7.1 ("informal but professional,
 like a friend who knows music"), the five-step service flow of §7.2, and eleven hard rules mapped to the manual.
@@ -135,12 +147,32 @@ tests in `tests/test_store.py`):
 
 ## Tests
 
-`uv run pytest` runs 40 tests without any API key: the business rules (`test_store.py`), the PDF parsing
+`uv run pytest` runs 44 tests without any API key: the business rules (`test_store.py`), the PDF parsing
 (`test_policies.py`) and the agent loop with a scripted fake model (`test_agent.py`: tool results fed back,
 provider failure, malformed arguments, history window, session round trip, opening hours around the Finados
 holiday).
 
+## What the first real runs showed (and what changed)
+
+The unit tests passed before the agent ever talked to a model; the first transcripts still exposed four problems,
+each fixed in its own commit (`git log`), with a regression test where the fix was in code:
+
+| Observed in the transcript | Fix |
+|---|---|
+| Asked for a WhatsApp number, the model **invented one**, right after reading the policy section that mentions it | store address, phone and e-mail pinned in the system prompt with "never invent contact data" |
+| Given order number + e-mail, it answered the return request **without calling `check_order`**, so it missed that order 8 shipped in February and never arrived | prompt rule: call `check_order` as soon as the data is given; the tool now flags shipped orders past their estimate as late, in words the model cannot misread |
+| It answered "qual a capital da Austrália?" | out-of-scope rule made explicit: decline even when the answer is known |
+| The tool said R$ 408,40 and the model wrote R$ 408,41 (429,90 × 0,95 = 408,405) | money rounded half up in code, so the tool and the model agree; out-of-stock alternatives keep the same string type |
+
+Plus one infrastructure bug: a stale `OPENAI_API_KEY` in the shell shadowed the `.env`, and the provider error was
+swallowed, so every reply was the fallback message. Errors are now logged and the example runner refuses to write
+a transcript made of fallback replies.
+
 ## Known limitations and next steps
+
+- **Small embellishments remain.** In `examples/01` the model says all the steel-string options have a folk body
+  shape, which the search result does not state; in `examples/05` it offers to warn about future promotions, which
+  it cannot do. Both are the kind of claim an output check would catch (below).
 
 - **No evaluation set yet.** The transcripts in `examples/` are spot checks. Next: 40-60 labelled questions with the
   expected tool calls and facts, scored automatically (tool-call accuracy, groundedness of prices against the
@@ -156,19 +188,22 @@ holiday).
 
 ## Use of coding assistants
 
-I used **Claude Code** (Anthropic's terminal agent), which is part of my daily workflow, as a pair programmer.
-How the work was split:
+I built this as a supervised agentic session in **Claude Code** (Anthropic's terminal agent), which is how I work
+day to day. I study this way of working, too: my research includes an autoethnography of 800+ of my own Claude
+Code sessions. How the work was split:
 
-- **I owned the decisions**: reading the brief and the policy manual, choosing typed tools over a SQL agent,
-  section lookup over embeddings, no framework, the privacy rule for orders, and what to put in the prompt versus
-  in code.
-- **Data audit first.** Before any agent code, I had it profile the CSVs (status values, stock, active vs expired
-  promotions, order totals vs item prices, duplicate e-mails) and read the whole manual looking for contradictions.
-  The "Data treatment" table above came out of that pass, and most of it turned into tests.
-- **Code and tests under review.** It wrote most of the implementation and the tests in small steps; I reviewed
-  each diff and commit. The history shows the order: data layer and rules, then policy parsing, then the loop.
-- **What it did not do**: it did not choose the architecture, and the example transcripts are real runs of the
-  agent against the model, not written by hand.
+- **I set the frame**: the goal, the brief's deliverables as acceptance criteria, Python only, a real commit
+  history, a time box, and the model provider (Maritaca, for Portuguese-native replies).
+- **It proposed, I decided.** The architecture choices above (typed tools instead of a SQL agent, section lookup
+  instead of embeddings, no framework, identity check on orders) were proposed by the assistant with the trade-offs
+  you read in this README; I accepted or redirected them.
+- **Data audit before code.** The first step was profiling the CSVs and reading the whole manual looking for
+  contradictions. The "Data treatment" table came out of that pass, and most of it became tests.
+- **Small, tested steps.** Each commit is a milestone that passed the tests and lint before it was made.
+- **Review where it matters: the real transcripts.** The four defects in "What the first real runs showed" were
+  caught by reading actual conversations with the model, not by the unit tests. That review loop, more than the
+  typing, is where I think the engineering is.
+- The transcripts in `examples/` are unedited outputs of `scripts/run_examples.py`.
 
 ## Project layout
 
